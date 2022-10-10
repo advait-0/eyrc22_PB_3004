@@ -67,16 +67,12 @@ def detect_Qr_details(image):
     Qr_codes_details = {}
 
     ##############	ADD YOUR CODE HERE	##############
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # threshold, thresh = cv2.threshold(gray, 127.5, 255, cv2.THRESH_BINARY)
-    decoded = pyzbar.decode(gray)
-    i=0
-    while i<len(decoded):
-        key = decoded[i].data.decode()
-        x1,y1 = decoded[i][3][0]
-        x2,y2 = decoded[i][3][2]
-        Qr_codes_details[key] = [(x1+x2)//2,(y1+y2)//2]
-        i+=1
+    data = pyzbar.decode(image)
+    
+    for i in data:
+        center = [ int((i.polygon[0].x+i.polygon[2].x)/2), int((i.polygon[0].y+i.polygon[2].y)/2) ]
+        Qr_codes_details[(i.data).decode('utf-8')] = center
+    
     ##################################################
     
     return Qr_codes_details    
@@ -110,9 +106,48 @@ def detect_ArUco_details(image):
     ArUco_corners = {}
     
     ##############	ADD YOUR CODE HERE	##############
-   
-    ##################################################
+    grey = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    arucoDict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_5X5_100)
+    arucoParams = cv2.aruco.DetectorParameters_create()
+    corners, ids, rejected = cv2.aruco.detectMarkers(grey, arucoDict, parameters=arucoParams)
+    x = 0
+    angle = 0
     
+    for c in corners:
+        pt1 = corners[x][0][0]
+        pt2 = corners[x][0][1]
+        pt3 = corners[x][0][2]
+        pt4 = corners[x][0][3]
+        center = (pt1 + pt3) / 2
+        center = list([ center[0], center[1] ])
+        id = int(ids[x])
+
+        x1, y1 = (pt1 + pt2)/ 2
+        #angle = math.atan(  (x1 - center[0]) /  (y1 - center[1]) )
+        angle = math.atan2(  (x1 - center[0]),  (y1 - center[1]) )
+        angle = angle * (180/math.pi)
+        if x1>center[0] and y1>center[1]:
+            # 1st quadrant
+            angle = -(180 - angle)
+
+        elif x1>center[0] and y1<center[1]:
+            # 2nd quadrant
+            angle = -(180 - angle)
+
+        elif x1<center[0] and y1<center[1]:
+            # 3rd quadrant
+            angle = 180 + angle
+
+        elif x1<center[0] and y1>center[1]:
+            # 4th quadrant
+            angle = 180 + angle
+        
+        center = [int(center[0]), int(center[1])]
+        ArUco_details_dict[id] = [center, int(angle)]
+        ArUco_corners[id] = [pt1.astype(int), pt2.astype(int), pt3.astype(int), pt4.astype(int)]
+        x += 1
+
+    ##################################################
     return ArUco_details_dict, ArUco_corners 
 
 ######### YOU ARE NOT ALLOWED TO MAKE CHANGES TO THE CODE BELOW #########	
