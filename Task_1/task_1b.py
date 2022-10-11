@@ -106,47 +106,24 @@ def detect_ArUco_details(image):
     ArUco_corners = {}
     
     ##############	ADD YOUR CODE HERE	##############
-    grey = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    arucoDict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_5X5_100)
-    arucoParams = cv2.aruco.DetectorParameters_create()
-    corners, ids, rejected = cv2.aruco.detectMarkers(grey, arucoDict, parameters=arucoParams)
-    x = 0
-    angle = 0
-    
-    for c in corners:
-        pt1 = corners[x][0][0]
-        pt2 = corners[x][0][1]
-        pt3 = corners[x][0][2]
-        pt4 = corners[x][0][3]
-        center = (pt1 + pt3) / 2
-        center = list([ center[0], center[1] ])
-        id = int(ids[x])
-
-        x1, y1 = (pt1 + pt2)/ 2
-        #angle = math.atan(  (x1 - center[0]) /  (y1 - center[1]) )
-        angle = math.atan2(  (x1 - center[0]),  (y1 - center[1]) )
-        angle = angle * (180/math.pi)
-        if x1>center[0] and y1>center[1]:
-            # 1st quadrant
-            angle = -(180 - angle)
-
-        elif x1>center[0] and y1<center[1]:
-            # 2nd quadrant
-            angle = -(180 - angle)
-
-        elif x1<center[0] and y1<center[1]:
-            # 3rd quadrant
-            angle = 180 + angle
-
-        elif x1<center[0] and y1>center[1]:
-            # 4th quadrant
-            angle = 180 + angle
-        
-        center = [int(center[0]), int(center[1])]
-        ArUco_details_dict[id] = [center, int(angle)]
-        ArUco_corners[id] = [pt1.astype(int), pt2.astype(int), pt3.astype(int), pt4.astype(int)]
-        x += 1
-
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    dictionary = cv2.aruco.Dictionary_get(cv2.aruco.DICT_5X5_250)
+    parameters =  cv2.aruco.DetectorParameters_create()
+    markerCorners, markerIds, Rejected = cv2.aruco.detectMarkers(gray, dictionary, parameters=parameters)
+    i = 0
+    while i<len(markerIds):
+        x1,y1 = markerCorners[i][0][0]
+        x2,y2 = markerCorners[i][0][1]
+        x3,y3 = markerCorners[i][0][2]
+        x4,y4 = markerCorners[i][0][3]
+        centroid_x, centroid_y = (x1+x3)//2, (y1+y3)//2
+        angle = -1*((180/math.pi)*math.atan2((y2-y1),(x2-x1)))
+        key = int(markerIds[i])
+        aruco_details = [[int(centroid_x),int(centroid_y)], int(angle)]
+        corners = [[x1,y1],[x2,y2],[x3,y3],[x4,y4]]
+        ArUco_details_dict[key] = aruco_details
+        ArUco_corners[key] = corners
+        i+=1
     ##################################################
     return ArUco_details_dict, ArUco_corners 
 
