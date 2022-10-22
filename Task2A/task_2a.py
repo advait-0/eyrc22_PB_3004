@@ -71,35 +71,50 @@ def control_logic(sim):
 	lmotor = sim.getObjectHandle('/Diff_Drive_Bot/left_joint')
 	rmotor = sim.getObjectHandle('/Diff_Drive_Bot/right_joint')
 	
+	vel = 1.5
+	j = 1
 	while 1:
+
 		distance1 = detect_distance_sensor_1(sim)
 		distance2 = detect_distance_sensor_2(sim)
 		
-		dmin = 0.4
-		rmin = 0.4
-		vel = 1
+		dmin = 0.2
+		# rmax = 0.255
+		rmin = 0.16
 
-		if distance1 == 0:
-			distance1 = 0.7
-		elif distance2 == 0:
-			distance2 = 0.7	
+		if(distance1<=dmin and distance1!=0):
+			sim.setJointTargetVelocity(lmotor,0)
+			sim.setJointTargetVelocity(rmotor,0)
 
-		if(distance1<=dmin):
-			if(distance2<=rmin):
-				sim.setJointTargetVelocity(lmotor,0)
-				sim.setJointTargetVelocity(rmotor,vel)
-			
-			elif(distance2>rmin):
-				sim.setJointTargetVelocity(lmotor,vel)
-				sim.setJointTargetVelocity(rmotor,0)
+			if j<10:	
+				if distance2<=0.5 and distance2!=0:
+					vel = 0.5
+					j+=1
+					for i in range(91):
+						sim.setJointTargetVelocity(lmotor,-vel)
+						sim.setJointTargetVelocity(rmotor,vel)
+					
+				else:
+					vel = 0.5
+					j+=1
+					for i in range(91):
+						sim.setJointTargetVelocity(lmotor,vel)
+						sim.setJointTargetVelocity(rmotor,-vel)
+			else :
+				break
 		else:
-			sim.setJointTargetVelocity(lmotor,1)
-			sim.setJointTargetVelocity(rmotor,1)
-
-		
-		# sim.setJointTargetVelocity(lmotor,1)
-		# sim.setJointTargetVelocity(rmotor,1)
-			
+			if distance2 >=0.22 and distance2 <=0.5:
+				vel = 0.5
+				sim.setJointTargetVelocity(lmotor,vel)
+				sim.setJointTargetVelocity(rmotor,vel/2.2)
+			elif distance2 <=rmin and distance2>=0.1 and distance2!=0:
+				vel = 0.5
+				sim.setJointTargetVelocity(lmotor,vel/2.2)
+				sim.setJointTargetVelocity(rmotor,vel)	
+			else:
+				vel = 1.5
+				sim.setJointTargetVelocity(lmotor,vel)
+				sim.setJointTargetVelocity(rmotor,vel)
 
 		
 
