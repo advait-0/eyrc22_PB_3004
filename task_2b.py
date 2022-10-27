@@ -75,8 +75,8 @@ def control_logic(sim):
     control_logic(sim)
     """
     ##############  ADD YOUR CODE HERE  ##############
-    vel=1
     while 1:
+        counter=0
         white_lower = np.array([253, 253, 253])
         white_higher = np.array([255, 255, 255])
         yellow_lower = np.array([75, 75, 75])
@@ -88,14 +88,71 @@ def control_logic(sim):
         img = np.frombuffer(img, dtype=np.uint8).reshape(resY, resX, 3)
         mask1 = cv2.inRange(img, white_lower, white_higher)
         mask2 = cv2.inRange(img, yellow_lower, yellow_higher)
-        mask =  mask2
+        mask =  mask1
         target = cv2.bitwise_and(img, img, mask=mask)
         target = cv2.flip(cv2.cvtColor(target, cv2.COLOR_BGR2RGB), 0)
+        gray = cv2.cvtColor(target,cv2.COLOR_BGR2GRAY)
 
-        cv2.imshow('', target)
+        # Find the top 20 corners using the cv2.goodFeaturesToTrack()
+        corners = cv2.goodFeaturesToTrack(gray,8,0.01,10)
+        corners = np.int0(corners)
+        # sim.setJointTargetVelocity(rmotor, 0.1)
+        # sim.setJointTargetVelocity(lmotor, 0.1)
+        print(corners.ravel())
+        pp=corners.ravel()
+        yavg=int((pp[1]+pp[3]+pp[5]+pp[7]+pp[9]+pp[11]+pp[13]+pp[15])/8)
+        print(yavg)
+        # Iterate over the corners and draw a circle at that location
+        for i in corners:
+            x,y = i.ravel()
+            print(x,y)
+            cv2.circle(target,(x,y),5,(0,0,255),-1)
+        if(pp[1] < 250 or pp[3] < 250 or pp[5] < 250 or pp[7] < 250 or pp[9] < 250 or pp[11] < 250 or pp[13] < 250 or pp[15] < 250):
+            boolvar=True
+        else:
+            boolvar=False
+        if(int((pp[0]+pp[2])/2)>255 and yavg<320):
+            sim.setJointTargetVelocity(rmotor, 0)
+            sim.setJointTargetVelocity(lmotor, 0.1)
+        elif(int((pp[0]+pp[2])/2)<255 and yavg<320):
+            sim.setJointTargetVelocity(rmotor, 0.1)
+            sim.setJointTargetVelocity(lmotor, 0)
+        elif (yavg > 325 and boolvar==True):
+            sim.setJointTargetVelocity(rmotor, 0)
+            sim.setJointTargetVelocity(lmotor, 0)
+            if(counter==0 or counter==2 or counter==6 or counter==10 or counter==4):
+                sim.setJointTargetVelocity(rmotor, 0.1)
+                sim.setJointTargetVelocity(lmotor, -0.1)
+                
+        else:
+            sim.setJointTargetVelocity(rmotor, 0.1)
+            sim.setJointTargetVelocity(lmotor, 0.1)
+        
+        # imgGrey = cv2.cvtColor(target, cv2.COLOR_BGR2GRAY)
+        # _, thrash = cv2.threshold(imgGrey, 240, 255, cv2.THRESH_BINARY)
+        # contours, _ = cv2.findContours(thrash, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+        
+        # # approx = cv2.approxPolyDP(contour, 0.01* cv2.arcLength(contour, True), True)
+        # print(approx.ravel())
+        # cv2.drawContours(target, [approx], 0, (0, 0, 0), 5)
+            
+        #     cv2.drawContours(target, [approx], 0, (0, 0, 0), 5)
+        #     x = approx.ravel()[0]
+        #     y = approx.ravel()[1] 
+        # for contour in contours:
+        #     approx = cv2.approxPolyDP(contour, 0.01* cv2.arcLength(contour, True), True)
+            
+        #     cv2.drawContours(target, [approx], 0, (0, 0, 0), 5)
+        #     x = approx.ravel()[0]
+        #     y = approx.ravel()[1] 
+        #     print(x, y)
+            
+            
+        # print(approx.ravel())
+   
+        cv2.imshow('hello world', target)
         cv2.waitKey(1)
-        sim.setJointTargetVelocity(rmotor, 0.1)
-        sim.setJointTargetVelocity(lmotor, 0.1)
+        cv2.destroyAllWindows
         
         # print(lmotor,rmotor)
     # In CoppeliaSim images are left to right (x-axis), and bottom to top (y-axis)
@@ -136,7 +193,12 @@ def read_qr_code(sim):
 
 if __name__ == "__main__":
     client = RemoteAPIClient()
-    sim = client.getObject('sim')	
+    sim = client.getObject('sim')
+    lmotor = sim.getObjectHandle('/Diff_Drive_Bot/left_joint')
+    rmotor = sim.getObjectHandle('/Diff_Drive_Bot/right_joint')
+    sim.setJointTargetVelocity(rmotor, 0)
+    sim.setJointTargetVelocity(lmotor, 0)
+    	
 
     try:
 
