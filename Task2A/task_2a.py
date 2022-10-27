@@ -38,7 +38,6 @@ import time
 import os
 import math
 
-from matplotlib.pyplot import flag
 
 from zmqRemoteApi import RemoteAPIClient
 import zmq
@@ -73,14 +72,21 @@ def control_logic(sim):
 	
 	vel = 1.5
 	j = 1
+	error = 0
+	prev_error = 0.18
+	P_Term = 0
+	D_Term = 0
+	kp = 1
+	kd = 0.6
+	dt = 1
 	while 1:
 
 		distance1 = detect_distance_sensor_1(sim)
 		distance2 = detect_distance_sensor_2(sim)
 		
-		dmin = 0.2
+		dmin = 0.20
 		# rmax = 0.255
-		rmin = 0.16
+		# rmin = 0.16
 
 		if(distance1<=dmin and distance1!=0):
 			sim.setJointTargetVelocity(lmotor,0)
@@ -103,18 +109,33 @@ def control_logic(sim):
 			else :
 				break
 		else:
-			if distance2 >=0.22 and distance2 <=0.5:
-				vel = 0.5
-				sim.setJointTargetVelocity(lmotor,vel)
-				sim.setJointTargetVelocity(rmotor,vel/2.2)
-			elif distance2 <=rmin and distance2>=0.1 and distance2!=0:
-				vel = 0.5
-				sim.setJointTargetVelocity(lmotor,vel/2.2)
-				sim.setJointTargetVelocity(rmotor,vel)	
+			if distance2 == 0:
+				distance2 = prev_error
+
+			error = distance2 - prev_error
+			P_Term = kp * error
+			diff_error = error/dt
+			
+			if diff_error > 0.1:
+				diff_error = 0.1
+			elif diff_error < -0.1:
+				diff_error = -0.1
+
+			D_Term = kd * diff_error	
+
+			total_error = P_Term + D_Term
+
+			if total_error < -1:
+				sim.setJointTargetVelocity(lmotor,vel * abs(total_error))
+				sim.setJointTargetVelocity(rmotor,0)
+			elif total_error > 1:
+				sim.setJointTargetVelocity(lmotor,0)
+				sim.setJointTargetVelocity(rmotor,vel * abs(total_error))
 			else:
-				vel = 1.5
 				sim.setJointTargetVelocity(lmotor,vel)
 				sim.setJointTargetVelocity(rmotor,vel)
+
+			prev_error = distance2		
 
 		
 
@@ -147,7 +168,7 @@ def detect_distance_sensor_1(sim):
 	fproximity = sim.getObjectHandle('distance_sensor_1')
 	flag,distance,detectedPoint,detectedObjectHandle,detectedSurfaceNormalVector=sim.readProximitySensor(fproximity)
 
-	print(flag,distance)	
+	# print(flag,distance)	
 
 
 	##################################################
