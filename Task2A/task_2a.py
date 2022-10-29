@@ -86,8 +86,7 @@ def control_logic(sim):
 		distance2 = detect_distance_sensor_2(sim)
 		
 		dmin = 0.21
-		# rmax = 0.255
-		# rmin = 0.16
+		
 
 		if(distance1<=dmin and distance1!=0):
 			sim.setJointTargetVelocity(lmotor,0)
@@ -135,7 +134,7 @@ def control_logic(sim):
 			D_Term = kd * diff_error	
 
 			total_error = P_Term + D_Term
-			print(total_error)
+			#print(total_error)
 
 			if total_error < -0.4:
 				print("Inside Right Rotation")
