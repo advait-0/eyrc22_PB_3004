@@ -70,7 +70,7 @@ def control_logic(sim):
 	lmotor = sim.getObjectHandle('/Diff_Drive_Bot/left_joint')
 	rmotor = sim.getObjectHandle('/Diff_Drive_Bot/right_joint')
 	
-	vel = 1.5
+	vel = 2.5
 	j = 1
 	error = 0
 	prev_error = 0.18
@@ -80,6 +80,8 @@ def control_logic(sim):
 	kd = 1
 	dt = 1
 	error_before_zero = 0.18
+	sim.setJointTargetVelocity(lmotor,0)
+	sim.setJointTargetVelocity(rmotor,0)
 	while 1:
 
 		distance1 = detect_distance_sensor_1(sim)
@@ -102,7 +104,7 @@ def control_logic(sim):
 					
 					sim.setJointTargetVelocity(lmotor,0)
 					sim.setJointTargetVelocity(rmotor,0)	
-					vel = 1.5
+					vel = 2
 					
 				else:
 					vel = 0.5
@@ -113,7 +115,7 @@ def control_logic(sim):
 					
 					sim.setJointTargetVelocity(lmotor,0)
 					sim.setJointTargetVelocity(rmotor,0)	
-					vel = 1.5
+					vel = 2
 			else :
 				break
 		else:
@@ -137,11 +139,11 @@ def control_logic(sim):
 			#print(total_error)
 
 			if total_error < -0.4:
-				print("Inside Right Rotation")
+				# print("Inside Right Rotation")
 				sim.setJointTargetVelocity(lmotor,0)
 				sim.setJointTargetVelocity(rmotor,vel * abs(total_error))
 			elif total_error > 0.4:
-				print("Inside Left ROtation")
+				# print("Inside Left ROtation")
 				sim.setJointTargetVelocity(lmotor,vel * abs(total_error))
 				sim.setJointTargetVelocity(rmotor,0)
 			else:
