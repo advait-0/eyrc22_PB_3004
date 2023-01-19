@@ -81,6 +81,60 @@ def place_packages(medicine_package_details, sim, all_models):
     packages_models_directory = os.path.join(models_directory, "package_models")
     arena = sim.getObject('/Arena')    
 ####################### ADD YOUR CODE HERE #########################
+    flag1 = 0
+    flag2 = 0
+    flag3 = 0
+    flag4 = 0 
+    flag5 = 0
+    for i in medicine_package_details:
+        shop = i[0]
+        if i[2] == "Circle":
+            shape = "cylinder"
+        elif i[2] == "Square":
+            shape = "cube"
+        elif i[2] == "Triangle":
+            shape = "cone"
+        # Setting Coordinate
+        if shop == "Shop_1":
+            if flag1 == 1:
+                x = x + 0.09
+            else:
+                x = -0.9 + 0.044
+                flag1 = 1
+        elif shop == "Shop_2":
+            if flag2 == 1:
+                x = x + 0.09
+            else:
+                x = -0.54 + 0.044
+                flag2 = 1
+        elif shop == "Shop_3":
+            if flag3 == 1:
+                x = x + 0.09
+            else:
+                x = -0.18 + 0.044
+                flag3 = 1
+        elif shop == "Shop_4":
+            if flag4 == 1:
+                x = x + 0.09
+            else:
+                x = 0.18 + 0.044
+                flag4 = 1
+        elif shop == "Shop_5":
+            if flag5 == 1:
+                x = x + 0.09
+            else:
+                x = 0.54 + 0.044
+                flag5 = 1
+
+        package = i[1] + "_" + shape
+        package_ttm = package + ".ttm"
+        # print(shop, package)
+        package_ttm = os.path.join(packages_models_directory, package_ttm)
+        print(package_ttm)
+        medicine = sim.loadModel(package_ttm)
+        sim.setObjectParent(medicine, arena, False)
+        sim.setObjectAlias(medicine, package)
+        sim.setObjectPosition(medicine, arena, [x, 0.624, 0.015])
 
 ####################################################################
     return all_models
@@ -152,9 +206,11 @@ def place_traffic_signals(traffic_signals, sim, all_models):
             y = -0.54
         elif b == '6':
             y = -0.9
-
+        name = "Signal_" + i
         position = [x, y, 0.25]
         signal = sim.loadModel(traffic_sig_model)
+        sim.setObjectParent(signal, arena, False)
+        sim.setObjectAlias(signal, name)
         sim.setObjectPosition(signal, arena, position)
 ####################################################################
     return all_models
@@ -349,8 +405,8 @@ if __name__ == "__main__":
             # obtain required arena parameters
             medicine_package_details = detected_arena_parameters["medicine_packages"]
             traffic_signals = detected_arena_parameters['traffic_signals']
-            start_node = detected_arena_parameters['start_node']
-            end_node = detected_arena_parameters['end_node']
+            #start_node = detected_arena_parameters['start_node']
+            #end_node = detected_arena_parameters['end_node']
             horizontal_roads_under_construction = detected_arena_parameters['horizontal_roads_under_construction']
             vertical_roads_under_construction = detected_arena_parameters['vertical_roads_under_construction'] 
 
@@ -359,7 +415,7 @@ if __name__ == "__main__":
             place_traffic_signals(traffic_signals, sim, all_models)
             place_horizontal_barricade(horizontal_roads_under_construction, sim, all_models)
             place_vertical_barricade(vertical_roads_under_construction, sim, all_models)
-            place_start_end_nodes(start_node, end_node, sim, all_models)
+            #place_start_end_nodes(start_node, end_node, sim, all_models)
             print("[2] Completed setting up the scene in CoppeliaSim")
 
             # wait for 10 seconds and then remove models
