@@ -21,10 +21,10 @@
 *****************************************************************************************
 '''
 
-# Team ID:			[ Team-ID ]
-# Author List:		[ Names of team members worked on this file separated by Comma: Name1, Name2, ... ]
+# Team ID:			[ 3004 ]
+# Author List:		[ Aryan Bawankar, Advait Dhamorikar ]
 # Filename:			task_4a.py
-# Functions:		[ Comma separated list of functions in this file ]
+# Functions:		[ place_packages, place_traffic_signals, place_start_end_nodes, place_horizontal_barricade, place_vertical_barricade]
 # 					
 ####################### IMPORT MODULES #######################
 ## You are not allowed to make any changes in this section. ##
@@ -130,11 +130,11 @@ def place_packages(medicine_package_details, sim, all_models):
         package_ttm = package + ".ttm"
         # print(shop, package)
         package_ttm = os.path.join(packages_models_directory, package_ttm)
-        print(package_ttm)
         medicine = sim.loadModel(package_ttm)
         sim.setObjectParent(medicine, arena, False)
         sim.setObjectAlias(medicine, package)
-        sim.setObjectPosition(medicine, arena, [x, 0.624, 0.015])
+        sim.setObjectPosition(medicine, arena, [x, 0.65, 0.015])
+        all_models.append(medicine)
 
 ####################################################################
     return all_models
@@ -207,11 +207,12 @@ def place_traffic_signals(traffic_signals, sim, all_models):
         elif b == '6':
             y = -0.9
         name = "Signal_" + i
-        position = [x, y, 0.25]
+        position = [x, y, 0.15588]
         signal = sim.loadModel(traffic_sig_model)
         sim.setObjectParent(signal, arena, False)
         sim.setObjectAlias(signal, name)
         sim.setObjectPosition(signal, arena, position)
+        all_models.append(signal)
 ####################################################################
     return all_models
 
@@ -253,7 +254,83 @@ def place_start_end_nodes(start_node, end_node, sim, all_models):
     end_node_model = os.path.join(models_directory, "signals", "end_node.ttm" )
     arena = sim.getObject('/Arena')   
 ####################### ADD YOUR CODE HERE #########################
-    
+    a = start_node[0]
+    b = start_node[1]
+    x = 0
+    y = 0
+       # setting up X Coordinate
+    if a == 'A':
+            x = -0.9
+    elif a == 'B':
+            x = -0.54
+    elif a == 'C':
+            x = -0.18
+    elif a == 'D':
+            x = 0.18
+    elif a == 'E':
+            x = 0.54
+    elif a == 'F':
+            x = 0.9
+
+        # setting up Y Coordinate
+    if b == '1':
+            y = 0.9
+    elif b == '2':
+            y = 0.54
+    elif b == '3':
+            y = 0.18
+    elif b == '4':
+            y = -0.18
+    elif b == '5':
+            y = -0.54
+    elif b == '6':
+            y = -0.9
+    name = "Start_Node"
+    position = [x, y, 0.15588]
+    start_node = sim.loadModel(start_node_model)
+    sim.setObjectParent(start_node, arena, False)
+    sim.setObjectAlias(start_node, name)
+    sim.setObjectPosition(start_node, arena, position)
+    all_models.append(start_node)
+
+    a = end_node[0]
+    b = end_node[1]
+    x = 0
+    y = 0
+    # setting up X Coordinate
+    if a == 'A':
+        x = -0.9
+    elif a == 'B':
+        x = -0.54
+    elif a == 'C':
+        x = -0.18
+    elif a == 'D':
+        x = 0.18
+    elif a == 'E':
+        x = 0.54
+    elif a == 'F':
+        x = 0.9
+
+        # setting up Y Coordinate
+    if b == '1':
+        y = 0.9
+    elif b == '2':
+        y = 0.54
+    elif b == '3':
+        y = 0.18
+    elif b == '4':
+        y = -0.18
+    elif b == '5':
+        y = -0.54
+    elif b == '6':
+        y = -0.9
+    name = "End_Node"
+    position = [x, y, 0.15588]
+    end_node = sim.loadModel(end_node_model)
+    sim.setObjectParent(end_node, arena, False)
+    sim.setObjectAlias(end_node, name)
+    sim.setObjectPosition(end_node, arena, position)
+    all_models.append(end_node)
 ####################################################################
     return all_models
 
@@ -294,7 +371,48 @@ def place_horizontal_barricade(horizontal_roads_under_construction, sim, all_mod
     horiz_barricade_model = os.path.join(models_directory, "barricades", "horizontal_barricade.ttm" )
     arena = sim.getObject('/Arena')  
 ####################### ADD YOUR CODE HERE #########################
-    
+    for i in horizontal_roads_under_construction:
+        nodes = i
+
+        A = nodes[0]
+         # setting up X Coordinate
+        if A == 'A':
+            x = -0.9
+        elif A == 'B':
+            x = -0.54
+        elif A == 'C':
+            x = -0.18
+        elif A == 'D':
+            x = 0.18
+        elif A == 'E':
+            x = 0.54
+        elif A == 'F':
+            x = 0.9
+        x = x + 0.18
+        
+        C = nodes[1]
+         # setting up Y Coordinate
+        if C == '1':
+            y = 0.9
+        elif C == '2':
+            y = 0.54
+        elif C == '3':
+            y = 0.18
+        elif C == '4':
+            y = -0.18
+        elif C == '5':
+            y = -0.54
+        elif C == '6':
+            y = -0.9
+        
+
+        positions = [x, y, 0.027]
+        name = "Horizontal_missing_road_" + A + C + "_" + nodes[3] + nodes[4]
+        h_barricade = sim.loadModel(horiz_barricade_model)
+        sim.setObjectParent(h_barricade, arena, False)
+        sim.setObjectAlias(h_barricade, name)
+        sim.setObjectPosition(h_barricade, arena, positions)
+        all_models.append(h_barricade)
 ####################################################################
     return all_models
 
@@ -336,7 +454,47 @@ def place_vertical_barricade(vertical_roads_under_construction, sim, all_models)
     vert_barricade_model = os.path.join(models_directory, "barricades", "vertical_barricade.ttm" )
     arena = sim.getObject('/Arena') 
 ####################### ADD YOUR CODE HERE #########################
-    
+    for i in vertical_roads_under_construction:
+        nodes = i
+
+        A = nodes[0]
+         # setting up X Coordinate
+        if A == 'A':
+            x = -0.9
+        elif A == 'B':
+            x = -0.54
+        elif A == 'C':
+            x = -0.18
+        elif A == 'D':
+            x = 0.18
+        elif A == 'E':
+            x = 0.54
+        elif A == 'F':
+            x = 0.9
+        
+        C = nodes[1]
+         # setting up Y Coordinate
+        if C == '1':
+            y = 0.9
+        elif C == '2':
+            y = 0.54
+        elif C == '3':
+            y = 0.18
+        elif C == '4':
+            y = -0.18
+        elif C == '5':
+            y = -0.54
+        elif C == '6':
+            y = -0.9
+        y = y - 0.18
+
+        positions = [x, y, 0.027]
+        name = "Vertical_missing_road_" + A + C + "_" + nodes[3] + nodes[4]
+        v_barricade = sim.loadModel(vert_barricade_model)
+        sim.setObjectParent(v_barricade, arena, False)
+        sim.setObjectAlias(v_barricade, name)
+        sim.setObjectPosition(v_barricade, arena, positions)
+        all_models.append(v_barricade)
 ####################################################################
     return all_models
 
@@ -364,8 +522,8 @@ if __name__ == "__main__":
     # obtain required arena parameters
     medicine_package_details = detected_arena_parameters["medicine_packages"]
     traffic_signals = detected_arena_parameters['traffic_signals']
-    #start_node = detected_arena_parameters['start_node']
-    #end_node = detected_arena_parameters['end_node']
+    start_node = detected_arena_parameters['start_node']
+    end_node = detected_arena_parameters['end_node']
     horizontal_roads_under_construction = detected_arena_parameters['horizontal_roads_under_construction']
     vertical_roads_under_construction = detected_arena_parameters['vertical_roads_under_construction'] 
 
@@ -374,7 +532,7 @@ if __name__ == "__main__":
     all_models = place_traffic_signals(traffic_signals, sim, all_models)
     all_models = place_horizontal_barricade(horizontal_roads_under_construction, sim, all_models)
     all_models = place_vertical_barricade(vertical_roads_under_construction, sim, all_models)
-    #all_models = place_start_end_nodes(start_node, end_node, sim, all_models)
+    all_models = place_start_end_nodes(start_node, end_node, sim, all_models)
     print("[2] Completed setting up the scene in CoppeliaSim")
 
     # wait for 10 seconds and then remove models
@@ -405,8 +563,8 @@ if __name__ == "__main__":
             # obtain required arena parameters
             medicine_package_details = detected_arena_parameters["medicine_packages"]
             traffic_signals = detected_arena_parameters['traffic_signals']
-            #start_node = detected_arena_parameters['start_node']
-            #end_node = detected_arena_parameters['end_node']
+            start_node = detected_arena_parameters['start_node']
+            end_node = detected_arena_parameters['end_node']
             horizontal_roads_under_construction = detected_arena_parameters['horizontal_roads_under_construction']
             vertical_roads_under_construction = detected_arena_parameters['vertical_roads_under_construction'] 
 
@@ -415,7 +573,7 @@ if __name__ == "__main__":
             place_traffic_signals(traffic_signals, sim, all_models)
             place_horizontal_barricade(horizontal_roads_under_construction, sim, all_models)
             place_vertical_barricade(vertical_roads_under_construction, sim, all_models)
-            #place_start_end_nodes(start_node, end_node, sim, all_models)
+            place_start_end_nodes(start_node, end_node, sim, all_models)
             print("[2] Completed setting up the scene in CoppeliaSim")
 
             # wait for 10 seconds and then remove models

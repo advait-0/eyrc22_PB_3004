@@ -47,6 +47,7 @@ def detect_traffic_signals(maze_image):
     ---
     This function takes the image as an argument and returns a list of
     nodes in which traffic signals are present in the image
+
     Input Arguments:
     ---
     `maze_image` :	[ numpy array ]
@@ -64,72 +65,175 @@ def detect_traffic_signals(maze_image):
 
     ##############	ADD YOUR CODE HERE	##############
     img = maze_image
-    hsv = cv2.cvtColor(maze_image, cv2.COLOR_BGR2HSV)
-    # cv2.imshow("hsv", hsv)
-    list=[]
-    # hsv format -> (min hue, min saturation , min value) -> (max hue, max saturation , max value)
-    # RED mask =>
-    # mask1 = cv2.inRange(hsv, (0, 100, 0), (10,255 ,255))
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    list = []
+    all_signals = []
+    purple_lower = np.array([189, 43, 105])
+    purple_higher = np.array([189, 43, 105])
+    green_lower = np.array([0, 255, 0])
+    green_higher = np.array([0, 255, 0])
+    mask = cv2.inRange(hsv, (0, 50, 50), (10, 255, 255))
+    endmask = cv2.inRange(img, purple_lower, purple_higher)
+    startmask = cv2.inRange(img, green_lower, green_higher)
 
+    startcont, _ = cv2.findContours(
+        startmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    for cnt in startcont:
+        approx = cv2.approxPolyDP(cnt, 0.009 * cv2.arcLength(cnt, True), True)
+        cv2.drawContours(img, [approx], 0, (0, 255, 255), 2)
 
+        n = approx.ravel()
+        diff = n[3] - n[1]
+        if (len(n) == 8 and diff < 20):
+            i = 0
+            for i in range(0, len(n)):
+                if (i % 2 == 0):
+                    if (n[i] > 90 and n[i] < 180):
+                        char1 = "A"
+                    elif (n[i] > 180 and n[i] < 280):
+                        char1 = "B"
+                    elif (n[i] > 280 and n[i] < 380):
+                        char1 = "C"
+                    elif (n[i] > 380 and n[i] < 480):
+                        char1 = "D"
+                    elif (n[i] > 480 and n[i] < 580):
+                        char1 = "E"
+                    elif (n[i] > 580 and n[i] < 680):
+                        char1 = "F"
+                elif (i % 3 == 0 and i > 0):
+                    if (n[i] > 90 and n[i] < 180):
+                        char2 = "1"
+                    elif (n[i] > 180 and n[i] < 280):
+                        char2 = "2"
+                    elif (n[i] > 280 and n[i] < 380):
+                        char2 = "3"
+                    elif (n[i] > 380 and n[i] < 480):
+                        char2 = "4"
+                    elif (n[i] > 480 and n[i] < 580):
+                        char2 = "5"
+                    elif (n[i] > 580 and n[i] < 680):
+                        char2 = "6"
+            signal = char1 + char2
+            start_node = signal
 
-    # BLUE mask =>
-    # font = cv2.FONT_HERSHEY_SIMPLEX
-    mask = cv2.inRange(hsv, (0,50,50), (10, 255, 255))
-    # cv2.imshow("mask", mask)
-    cont,_=cv2.findContours(mask,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE)
-    #cv2.drawContours(img,cont,-1,(255,255,0),3)
-    for cnt in cont :
+    endcont, _ = cv2.findContours(
+        endmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    for cnt in endcont:
+        approx = cv2.approxPolyDP(cnt, 0.009 * cv2.arcLength(cnt, True), True)
+        cv2.drawContours(img, [approx], 0, (0, 255, 255), 2)
 
-                approx = cv2.approxPolyDP(cnt, 0.009 * cv2.arcLength(cnt, True), True)
+        n = approx.ravel()
+        i = 0
+        for i in range(0, len(n)):
+            if i % 2 == 0:
+                if (n[i] > 90 and n[i] < 180):
+                    char1 = "A"
+                elif (n[i] > 180 and n[i] < 280):
+                    char1 = "B"
+                elif (n[i] > 280 and n[i] < 380):
+                    char1 = "C"
+                elif (n[i] > 380 and n[i] < 480):
+                    char1 = "D"
+                elif (n[i] > 480 and n[i] < 580):
+                    char1 = "E"
+                elif (n[i] > 580 and n[i] < 680):
+                    char1 = "F"
+            elif (i % 3 == 0 and i > 0):
+                if (n[i] > 90 and n[i] < 180):
+                    char2 = "1"
+                elif (n[i] > 180 and n[i] < 280):
+                    char2 = "2"
+                elif (n[i] > 280 and n[i] < 380):
+                    char2 = "3"
+                elif (n[i] > 380 and n[i] < 480):
+                    char2 = "4"
+                elif (n[i] > 480 and n[i] < 580):
+                    char2 = "5"
+                elif (n[i] > 580 and n[i] < 680):
+                    char2 = "6"
+        signal = char1 + char2
+        end_node = signal
 
-                # draws boundary of contours.
-                cv2.drawContours(img, [approx], 0, (0, 255, 255), 2) 
+    endcont, _ = cv2.findContours(
+        endmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    for cnt in endcont:
+        approx = cv2.approxPolyDP(cnt, 0.009 * cv2.arcLength(cnt, True), True)
+        cv2.drawContours(img, [approx], 0, (0, 255, 255), 2)
 
-                # Used to flatted the array containing
-                # the co-ordinates of the vertices.
-                n = approx.ravel() 
-                i = 0
-                # print(n)
-                for i in range(0,len(n)):
-                                if(i%2==0):
-                                                if(n[i]>90 and n[i]<180):
-                                                                char1="A"
-                                                elif(n[i]>180 and n[i]<280):
-                                                                char1="B"
-                                                elif(n[i]>280 and n[i]<380):
-                                                                char1="C"
-                                                elif(n[i]>380 and n[i]<480):
-                                                                char1="D"
-                                                elif(n[i]>480 and n[i]<580):
-                                                                char1="E"
-                                                elif(n[i]>580 and n[i]<680):
-                                                                char1="F"
-                                                elif(n[i]>680 and n[i]<780):
-                                                                char1="G"
-                                elif(i%3==0 and i>0):
-                                                if(n[i]>90 and n[i]<180):
-                                                                char2="1"
-                                                elif(n[i]>180 and n[i]<280):
-                                                                char2="2"
-                                                elif(n[i]>280 and n[i]<380):
-                                                                char2="3"
-                                                elif(n[i]>380 and n[i]<480):
-                                                                char2="4"
-                                                elif(n[i]>480 and n[i]<580):
-                                                                char2="5"
-                                                elif(n[i]>580 and n[i]<680):
-                                                                char2="6"
-                                                elif(n[i]>680 and n[i]<780):
-                                                                char2="7"
-                signal=char1+char2
-                list.append(signal)
+        n = approx.ravel()
+        i = 0
+        for i in range(0, len(n)):
+            if (i % 2 == 0):
+                if (n[i] > 90 and n[i] < 180):
+                    char1 = "A"
+                elif (n[i] > 180 and n[i] < 280):
+                    char1 = "B"
+                elif (n[i] > 280 and n[i] < 380):
+                    char1 = "C"
+                elif (n[i] > 380 and n[i] < 480):
+                    char1 = "D"
+                elif (n[i] > 480 and n[i] < 580):
+                    char1 = "E"
+                elif (n[i] > 580 and n[i] < 680):
+                    char1 = "F"
+            elif (i % 3 == 0 and i > 0):
+                if (n[i] > 90 and n[i] < 180):
+                    char2 = "1"
+                elif (n[i] > 180 and n[i] < 280):
+                    char2 = "2"
+                elif (n[i] > 280 and n[i] < 380):
+                    char2 = "3"
+                elif (n[i] > 380 and n[i] < 480):
+                    char2 = "4"
+                elif (n[i] > 480 and n[i] < 580):
+                    char2 = "5"
+                elif (n[i] > 580 and n[i] < 680):
+                    char2 = "6"
+        signal = char1 + char2
+        # print(signal)
+        # all_signals.append(signal)
 
-                list.sort()
-                traffic_signals=list
+    cont, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    for cnt in cont:
+        approx = cv2.approxPolyDP(cnt, 0.009 * cv2.arcLength(cnt, True), True)
+        cv2.drawContours(img, [approx], 0, (0, 255, 255), 2)
+
+        n = approx.ravel()
+        i = 0
+        for i in range(0, len(n)):
+            if (i % 2 == 0):
+                if (n[i] > 90 and n[i] < 180):
+                    char1 = "A"
+                elif (n[i] > 180 and n[i] < 280):
+                    char1 = "B"
+                elif (n[i] > 280 and n[i] < 380):
+                    char1 = "C"
+                elif (n[i] > 380 and n[i] < 480):
+                    char1 = "D"
+                elif (n[i] > 480 and n[i] < 580):
+                    char1 = "E"
+                elif (n[i] > 580 and n[i] < 680):
+                    char1 = "F"
+            elif (i % 3 == 0 and i > 0):
+                if (n[i] > 90 and n[i] < 180):
+                    char2 = "1"
+                elif (n[i] > 180 and n[i] < 280):
+                    char2 = "2"
+                elif (n[i] > 280 and n[i] < 380):
+                    char2 = "3"
+                elif (n[i] > 380 and n[i] < 480):
+                    char2 = "4"
+                elif (n[i] > 480 and n[i] < 580):
+                    char2 = "5"
+                elif (n[i] > 580 and n[i] < 680):
+                    char2 = "6"
+        signal = char1 + char2
+        list.append(signal)
+        list.sort()
+    traffic_signals = list
     ##################################################
     
-    return traffic_signals
+    return traffic_signals, start_node, end_node
     
 
 def detect_horizontal_roads_under_construction(maze_image):
@@ -139,6 +243,7 @@ def detect_horizontal_roads_under_construction(maze_image):
     ---
     This function takes the image as an argument and returns a list
     containing the missing horizontal links
+
     Input Arguments:
     ---
     `maze_image` :	[ numpy array ]
@@ -299,6 +404,7 @@ def detect_vertical_roads_under_construction(maze_image):
     ---
     This function takes the image as an argument and returns a list
     containing the missing vertical links
+
     Input Arguments:
     ---
     `maze_image` :	[ numpy array ]
@@ -463,10 +569,12 @@ def detect_medicine_packages(maze_image):
     ---
     This function takes the image as an argument and returns a nested list of
     details of the medicine packages placed in different shops
+
     ** Please note that the shop packages should be sorted in the ASCENDING order of shop numbers 
        as well as in the alphabetical order of colors.
        For example, the list should first have the packages of shop_1 listed. 
        For the shop_1 packages, the packages should be sorted in the alphabetical order of color ie Green, Orange, Pink and Skyblue.
+
     Input Arguments:
     ---
     `maze_image` :	[ numpy array ]
@@ -648,12 +756,15 @@ def detect_arena_parameters(maze_image):
     ---
     This function takes the image as an argument and returns a dictionary
     containing the details of the different arena parameters in that image
+
     The arena parameters are of four categories:
     i) traffic_signals : list of nodes having a traffic signal
     ii) horizontal_roads_under_construction : list of missing horizontal links
     iii) vertical_roads_under_construction : list of missing vertical links
     iv) medicine_packages : list containing details of medicine packages
+
     These four categories constitute the four keys of the dictionary
+
     Input Arguments:
     ---
     `maze_image` :	[ numpy array ]
@@ -670,8 +781,8 @@ def detect_arena_parameters(maze_image):
     arena_parameters = {}
 
     ##############	ADD YOUR CODE HERE	##############
-    
-    arena_parameters={'traffic_signals':detect_traffic_signals(maze_image),'horizontal_roads_under_construction':detect_horizontal_roads_under_construction(maze_image),'vertical_roads_under_construction':detect_vertical_roads_under_construction(maze_image),'medicine_packages':detect_medicine_packages(maze_image)}
+    signals, startn, endn = detect_traffic_signals(maze_image)
+    arena_parameters={'traffic_signals':signals,'horizontal_roads_under_construction':detect_horizontal_roads_under_construction(maze_image),'vertical_roads_under_construction':detect_vertical_roads_under_construction(maze_image),'medicine_packages':detect_medicine_packages(maze_image),'start_node':startn,'end_node':endn}
     return arena_parameters
 
 ######### YOU ARE NOT ALLOWED TO MAKE CHANGES TO THIS FUNCTION #########	
